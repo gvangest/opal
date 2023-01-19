@@ -7,7 +7,7 @@ between all the instances** of the OPAL Server.
 
 ```yml showLineNumbers
 services:
-  broadcast_channel:
+  broadcastchannel:
     image: postgres:alpine
     environment:
       - POSTGRES_DB=postgres
@@ -35,5 +35,5 @@ The format of the broadcaster URI string `OPAL_BROADCAST_URI` is specified below
 
 ```yml
 environment:
-  - OPAL_BROADCAST_URI=postgres://postgres:postgres@broadcast_channel:5432/postgres
+  - OPAL_BROADCAST_URI=postgres://postgres:postgres@broadcastchannel:5432/postgres
 ```

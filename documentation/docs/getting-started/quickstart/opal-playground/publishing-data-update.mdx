@@ -1,6 +1,6 @@
 # Step 4: Publishing a data update via the OPAL Server
 
-The default policy in the [example repo](https://github.com/permitio/opal-example-policy-repo) is a **simple RBAC policy with a twist**.
+The default policy in the [example repo](https://github.com/gvangest/opal-example-policy-repo) is a **simple RBAC policy with a twist**.
 
 A user is granted access if:
 
@@ -18,7 +18,7 @@ curl -w '\n' --request POST 'http://localhost:8181/v1/data/app/rbac/allow' \
 --data-raw '{"input": {"user": "bob", "action": "read", "object": "id123", "type": "finance"}}'
 ```
 
-Bob is granted access because the initial [`data.json`](https://github.com/permitio/opal-example-policy-repo/blob/master/data.json#L13) location is `US`.
+Bob is granted access because the initial [`data.json`](https://github.com/gvangest/opal-example-policy-repo/blob/master/data.json#L13) location is `US`.
 
 ```json {3,4}
 "bob": {

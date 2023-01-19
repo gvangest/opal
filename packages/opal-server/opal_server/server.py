@@ -23,24 +23,24 @@ from opal_common.topics.publisher import (
     ServerSideTopicPublisher,
     TopicPublisher,
 )
-from opal_server.config import opal_server_config
-from opal_server.data.api import init_data_updates_router
-from opal_server.data.data_update_publisher import DataUpdatePublisher
-from opal_server.loadlimiting import init_loadlimit_router
-from opal_server.policy.bundles.api import router as bundles_router
-from opal_server.policy.watcher import setup_watcher_task, trigger_repo_watcher_pull
-from opal_server.policy.watcher.task import PolicyWatcherTask
-from opal_server.policy.webhook.api import init_git_webhook_router
-from opal_server.publisher import setup_broadcaster_keepalive_task
-from opal_server.pubsub import PubSub
-from opal_server.redis import RedisDB
-from opal_server.scopes.api import init_scope_router
-from opal_server.scopes.loader import DEFAULT_SCOPE_ID, load_scopes
-from opal_server.scopes.scope_repository import ScopeNotFoundError, ScopeRepository
-from opal_server.security.api import init_security_router
-from opal_server.security.jwks import JwksStaticEndpoint
-from opal_server.statistics import OpalStatistics, init_statistics_router
-from opal_server.worker import schedule_sync_all_scopes
+from opalserver.config import opalserver_config
+from opalserver.data.api import init_data_updates_router
+from opalserver.data.data_update_publisher import DataUpdatePublisher
+from opalserver.loadlimiting import init_loadlimit_router
+from opalserver.policy.bundles.api import router as bundles_router
+from opalserver.policy.watcher import setup_watcher_task, trigger_repo_watcher_pull
+from opalserver.policy.watcher.task import PolicyWatcherTask
+from opalserver.policy.webhook.api import init_git_webhook_router
+from opalserver.publisher import setup_broadcaster_keepalive_task
+from opalserver.pubsub import PubSub
+from opalserver.redis import RedisDB
+from opalserver.scopes.api import init_scope_router
+from opalserver.scopes.loader import DEFAULT_SCOPE_ID, load_scopes
+from opalserver.scopes.scope_repository import ScopeNotFoundError, ScopeRepository
+from opalserver.security.api import init_security_router
+from opalserver.security.jwks import JwksStaticEndpoint
+from opalserver.statistics import OpalStatistics, init_statistics_router
+from opalserver.worker import schedule_sync_all_scopes
 
 
 class OpalServer:
@@ -87,23 +87,23 @@ class OpalServer:
         """
         # load defaults
         init_publisher: bool = load_conf_if_none(
-            init_publisher, opal_server_config.PUBLISHER_ENABLED
+            init_publisher, opalserver_config.PUBLISHER_ENABLED
         )
         broadcaster_uri: str = load_conf_if_none(
-            broadcaster_uri, opal_server_config.BROADCAST_URI
+            broadcaster_uri, opalserver_config.BROADCAST_URI
         )
-        jwks_url: str = load_conf_if_none(jwks_url, opal_server_config.AUTH_JWKS_URL)
+        jwks_url: str = load_conf_if_none(jwks_url, opalserver_config.AUTH_JWKS_URL)
         jwks_static_dir: str = load_conf_if_none(
-            jwks_static_dir, opal_server_config.AUTH_JWKS_STATIC_DIR
+            jwks_static_dir, opalserver_config.AUTH_JWKS_STATIC_DIR
         )
         master_token: str = load_conf_if_none(
-            master_token, opal_server_config.AUTH_MASTER_TOKEN
+            master_token, opalserver_config.AUTH_MASTER_TOKEN
         )
         self._init_policy_watcher: bool = load_conf_if_none(
-            init_policy_watcher, opal_server_config.REPO_WATCHER_ENABLED
+            init_policy_watcher, opalserver_config.REPO_WATCHER_ENABLED
         )
         self.loadlimit_notation: str = load_conf_if_none(
-            loadlimit_notation, opal_server_config.CLIENT_LOAD_LIMIT_NOTATION
+            loadlimit_notation, opalserver_config.CLIENT_LOAD_LIMIT_NOTATION
         )
         self._policy_remote_url = policy_remote_url
 
@@ -114,7 +114,7 @@ class OpalServer:
         self.data_sources_config: ServerDataSourceConfig = (
             data_sources_config
             if data_sources_config is not None
-            else opal_server_config.DATA_CONFIG_SOURCES
+            else opalserver_config.DATA_CONFIG_SOURCES
         )
 
         self.broadcaster_uri = broadcaster_uri
@@ -124,7 +124,7 @@ class OpalServer:
             self.signer = signer
         else:
             self.signer = JWTSigner(
-                private_key=opal_server_config.AUTH_PRIVATE_KEY,
+                private_key=opalserver_config.AUTH_PRIVATE_KEY,
                 public_key=opal_common_config.AUTH_PUBLIC_KEY,
                 algorithm=opal_common_config.AUTH_JWT_ALGORITHM,
                 audience=opal_common_config.AUTH_JWT_AUDIENCE,
@@ -154,13 +154,13 @@ class OpalServer:
             self.publisher = ServerSideTopicPublisher(self.pubsub.endpoint)
 
             if (
-                opal_server_config.BROADCAST_KEEPALIVE_INTERVAL > 0
+                opalserver_config.BROADCAST_KEEPALIVE_INTERVAL > 0
                 and self.broadcaster_uri is not None
             ):
                 self.broadcast_keepalive = setup_broadcaster_keepalive_task(
                     self.publisher,
-                    time_interval=opal_server_config.BROADCAST_KEEPALIVE_INTERVAL,
-                    topic=opal_server_config.BROADCAST_KEEPALIVE_TOPIC,
+                    time_interval=opalserver_config.BROADCAST_KEEPALIVE_INTERVAL,
+                    topic=opalserver_config.BROADCAST_KEEPALIVE_TOPIC,
                 )
 
         if opal_common_config.STATISTICS_ENABLED:
@@ -181,8 +181,8 @@ class OpalServer:
 
         self.watcher: Optional[PolicyWatcherTask] = None
 
-        if opal_server_config.SCOPES:
-            self._redis_db = RedisDB(opal_server_config.REDIS_URL)
+        if opalserver_config.SCOPES:
+            self._redis_db = RedisDB(opalserver_config.REDIS_URL)
             self._scopes = ScopeRepository(self._redis_db)
             logger.info("OPAL Scopes: server is connected to scopes repository")
 
@@ -191,7 +191,7 @@ class OpalServer:
 
     def _init_fast_api_app(self):
         """inits the fastapi app object."""
-        if opal_server_config.ENABLE_DATADOG_APM:
+        if opalserver_config.ENABLE_DATADOG_APM:
             self._configure_monitoring()
 
         app = FastAPI(
@@ -260,7 +260,7 @@ class OpalServer:
             dependencies=[Depends(authenticator)],
         )
 
-        if opal_server_config.SCOPES:
+        if opalserver_config.SCOPES:
             app.include_router(
                 init_scope_router(self._scopes, authenticator, self.pubsub.endpoint),
                 tags=["Scopes"],
@@ -309,7 +309,7 @@ class OpalServer:
         return app
 
     async def start(self):
-        if opal_server_config.SCOPES:
+        if opalserver_config.SCOPES:
             await load_scopes(self._scopes)
             await schedule_sync_all_scopes(self._scopes)
 
@@ -340,7 +340,7 @@ class OpalServer:
                     # (otherwise for each new commit, we will publish multiple updates via pub/sub).
                     # leadership is determined by the first worker to obtain a lock
                     self.leadership_lock = NamedLock(
-                        opal_server_config.LEADER_LOCK_FILE_PATH
+                        opalserver_config.LEADER_LOCK_FILE_PATH
                     )
                     async with self.leadership_lock:
                         # only one worker gets here, the others block. in case the leader worker
@@ -351,21 +351,21 @@ class OpalServer:
                         )
                         logger.info(
                             "listening on webhook topic: '{topic}'",
-                            topic=opal_server_config.POLICY_REPO_WEBHOOK_TOPIC,
+                            topic=opalserver_config.POLICY_REPO_WEBHOOK_TOPIC,
                         )
                         # bind data updater publishers to the leader worker
                         asyncio.create_task(
                             DataUpdatePublisher.mount_and_start_polling_updates(
-                                self.publisher, opal_server_config.DATA_CONFIG_SOURCES
+                                self.publisher, opalserver_config.DATA_CONFIG_SOURCES
                             )
                         )
 
                         # init policy watcher
                         if self.watcher is None:
                             clone_path_finder = RepoClonePathFinder(
-                                base_clone_path=opal_server_config.POLICY_REPO_CLONE_PATH,
-                                clone_subdirectory_prefix=opal_server_config.POLICY_REPO_CLONE_FOLDER_PREFIX,
-                                use_fixed_path=opal_server_config.POLICY_REPO_REUSE_CLONE_PATH,
+                                base_clone_path=opalserver_config.POLICY_REPO_CLONE_PATH,
+                                clone_subdirectory_prefix=opalserver_config.POLICY_REPO_CLONE_FOLDER_PREFIX,
+                                use_fixed_path=opalserver_config.POLICY_REPO_REUSE_CLONE_PATH,
                             )
                             # only the leader should create new clone path and discard previous ones
                             full_local_repo_path = (
@@ -377,16 +377,16 @@ class OpalServer:
 
                             self.watcher = setup_watcher_task(
                                 self.publisher,
-                                remote_source_url=opal_server_config.POLICY_REPO_URL,
-                                ssh_key=opal_server_config.POLICY_REPO_SSH_KEY,
-                                branch_name=opal_server_config.POLICY_REPO_MAIN_BRANCH,
+                                remote_source_url=opalserver_config.POLICY_REPO_URL,
+                                ssh_key=opalserver_config.POLICY_REPO_SSH_KEY,
+                                branch_name=opalserver_config.POLICY_REPO_MAIN_BRANCH,
                                 clone_path_finder=clone_path_finder,
                             )
 
                         # the leader listens to the webhook topic (webhook api route can be hit randomly in all workers)
                         # and triggers the watcher to check for changes in the tracked upstream remote.
                         await self.pubsub.endpoint.subscribe(
-                            [opal_server_config.POLICY_REPO_WEBHOOK_TOPIC],
+                            [opalserver_config.POLICY_REPO_WEBHOOK_TOPIC],
                             partial(trigger_repo_watcher_pull, self.watcher),
                         )
                         # running the watcher, and waiting until it stops (until self.watcher.signal_stop() is called)

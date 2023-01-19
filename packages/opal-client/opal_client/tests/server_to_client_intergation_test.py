@@ -16,25 +16,25 @@ root_dir = os.path.abspath(
 sys.path.append(root_dir)
 
 
-from opal_client import OpalClient
-from opal_client.data.rpc import TenantAwareRpcEventClientMethods
-from opal_client.data.updater import DataSourceEntry, DataUpdate, DataUpdater
-from opal_client.policy_store.mock_policy_store_client import MockPolicyStoreClient
-from opal_client.policy_store.policy_store_client_factory import (
+from opalclient import OpalClient
+from opalclient.data.rpc import TenantAwareRpcEventClientMethods
+from opalclient.data.updater import DataSourceEntry, DataUpdate, DataUpdater
+from opalclient.policy_store.mock_policy_store_client import MockPolicyStoreClient
+from opalclient.policy_store.policy_store_client_factory import (
     PolicyStoreClientFactory,
 )
-from opal_client.policy_store.schemas import PolicyStoreTypes
+from opalclient.policy_store.schemas import PolicyStoreTypes
 from opal_common.schemas.data import DataSourceConfig, ServerDataSourceConfig
 from opal_common.utils import get_authorization_header
-from opal_server.config import opal_server_config
-from opal_server.server import OpalServer
+from opalserver.config import opalserver_config
+from opalserver.server import OpalServer
 
 # Server settings
 PORT = int(os.environ.get("PORT") or "9123")
 UPDATES_URL = f"ws://localhost:{PORT}/ws"
 DATA_ROUTE = "/fetchable_data"
 DATA_URL = f"http://localhost:{PORT}{DATA_ROUTE}"
-DATA_CONFIG_URL = f"http://localhost:{PORT}{opal_server_config.DATA_CONFIG_ROUTE}"
+DATA_CONFIG_URL = f"http://localhost:{PORT}{opalserver_config.DATA_CONFIG_ROUTE}"
 DATA_TOPICS = ["policy_data"]
 TEST_DATA = {"hello": "world"}
 DATA_SOURCES_CONFIG = ServerDataSourceConfig(

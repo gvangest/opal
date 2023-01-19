@@ -99,7 +99,7 @@ The policy bundle contains a `manifest` list that contains the paths of all the 
 
 OPA rego modules can have dependencies if they use the [import statement](https://www.openpolicyagent.org/docs/latest/policy-language/#imports).
 
-You can control the manifest contents and ensure the correct loading of dependent OPA modules. All you have to do is to put a `.manifest` file in the root directory of your policy git repository (like shown in [this example repo](https://github.com/permitio/opal-example-policy-repo)).
+You can control the manifest contents and ensure the correct loading of dependent OPA modules. All you have to do is to put a `.manifest` file in the root directory of your policy git repository (like shown in [this example repo](https://github.com/gvangest/opal-example-policy-repo)).
 
 **The `.manifest` file is optional!!!** If there is no manifest file, OPAL will load the policy modules it finds in alphabetical order.
 
@@ -113,7 +113,7 @@ The format of the `.manifest` file you should adhere to:
 - File paths should appear in the order you want to load them into OPA.
 - If your root `.manifest` file is at another path, you can set another value to the env var `OPAL_POLICY_REPO_MANIFEST_PATH` (either a file path, or a folder path containing a `.manifest` file).
 
-For example, if you look in the [example repo](https://github.com/permitio/opal-example-policy-repo), you would see that the `rbac.rego` module imports the `utils.rego` module (the line `import data.utils` imports the `utils` package). Therefore in the manifest, `utils.rego` appears first because it needs to be loaded into OPA before the `rbac.rego` policy is loaded (otherwise OPA will throw an exception due to the import statement failing).
+For example, if you look in the [example repo](https://github.com/gvangest/opal-example-policy-repo), you would see that the `rbac.rego` module imports the `utils.rego` module (the line `import data.utils` imports the `utils` package). Therefore in the manifest, `utils.rego` appears first because it needs to be loaded into OPA before the `rbac.rego` policy is loaded (otherwise OPA will throw an exception due to the import statement failing).
 
 #### Policy bundle API Endpoint
 
@@ -122,7 +122,7 @@ The [policy bundle endpoint](https://opal.permit.io/redoc#operation/get_policy_p
 - **path** - path to a directory inside the repo, the server will include only policy files under this directory. You can pass the **path** parameter multiple times (i.e: to include files under several directories).
 - **base_hash** - include only policy files that were changed (added, updated, deleted or renamed) after the commit with the **base hash**. If this parameter is included, the server will return a **delta bundle**, otherwise the server will return a **complete bundle**.
 
-Let's look at some real API call examples. The opal server in these example track [our example repo](https://github.com/permitio/opal-example-policy-repo).
+Let's look at some real API call examples. The opal server in these example track [our example repo](https://github.com/gvangest/opal-example-policy-repo).
 
 Example fetching a complete bundle:
 
@@ -338,7 +338,7 @@ And then fill the following values:
 
 ## Code References:
 
-- [opal_server/policy/webhook/api.py](https://github.com/permitio/opal/blob/master/packages/opal-server/opal_server/policy/webhook/api.py)
-- [opal_server/policy/webhook/deps.py](https://github.com/permitio/opal/blob/master/packages/opal-server/opal_server/policy/webhook/deps.py)
+- [opalserver/policy/webhook/api.py](https://github.com/permitio/opal/blob/master/packages/opal-server/opalserver/policy/webhook/api.py)
+- [opalserver/policy/webhook/deps.py](https://github.com/permitio/opal/blob/master/packages/opal-server/opalserver/policy/webhook/deps.py)
 - [opal_common/schemas/webhook.py](https://github.com/permitio/opal/blob/master/packages/opal-common/opal_common/schemas/webhook.py)
-- [opal_server/tests/policy_repo_webhook_test.py](https://github.com/permitio/opal/blob/master/packages/opal-server/opal_server/tests/policy_repo_webhook_test.py)
+- [opalserver/tests/policy_repo_webhook_test.py](https://github.com/permitio/opal/blob/master/packages/opal-server/opalserver/tests/policy_repo_webhook_test.py)

@@ -9,17 +9,17 @@ import aiohttp
 from aiohttp.client import ClientError, ClientSession
 from fastapi_websocket_pubsub import PubSubClient
 from fastapi_websocket_rpc.rpc_channel import RpcChannel
-from opal_client.callbacks.register import CallbacksRegister
-from opal_client.callbacks.reporter import CallbacksReporter
-from opal_client.config import opal_client_config
-from opal_client.data.fetcher import DataFetcher
-from opal_client.data.rpc import TenantAwareRpcEventClientMethods
-from opal_client.logger import logger
-from opal_client.policy_store.base_policy_store_client import (
+from opalclient.callbacks.register import CallbacksRegister
+from opalclient.callbacks.reporter import CallbacksReporter
+from opalclient.config import opalclient_config
+from opalclient.data.fetcher import DataFetcher
+from opalclient.data.rpc import TenantAwareRpcEventClientMethods
+from opalclient.logger import logger
+from opalclient.policy_store.base_policy_store_client import (
     BasePolicyStoreClient,
     JsonableValue,
 )
-from opal_client.policy_store.policy_store_client_factory import (
+from opalclient.policy_store.policy_store_client_factory import (
     DEFAULT_POLICY_STORE_GETTER,
 )
 from opal_common.config import opal_common_config
@@ -49,7 +49,7 @@ class DataUpdater:
         should_send_reports=None,
         data_fetcher: Optional[DataFetcher] = None,
         callbacks_register: Optional[CallbacksRegister] = None,
-        opal_client_id: str = None,
+        opalclient_id: str = None,
     ):
         """Keeps policy-stores (e.g. OPA) up to date with relevant data Obtains
         data configuration on startup from OPAL-server Uses Pub/Sub to
@@ -65,21 +65,21 @@ class DataUpdater:
             policy_store (BasePolicyStoreClient, optional): Policy store client to use to store data. Defaults to DEFAULT_POLICY_STORE.
         """
         # Defaults
-        token: str = token or opal_client_config.CLIENT_TOKEN
-        pubsub_url: str = pubsub_url or opal_client_config.SERVER_PUBSUB_URL
-        self._scope_id = opal_client_config.SCOPE_ID
+        token: str = token or opalclient_config.CLIENT_TOKEN
+        pubsub_url: str = pubsub_url or opalclient_config.SERVER_PUBSUB_URL
+        self._scope_id = opalclient_config.SCOPE_ID
         self._data_topics = (
-            data_topics if data_topics is not None else opal_client_config.DATA_TOPICS
+            data_topics if data_topics is not None else opalclient_config.DATA_TOPICS
         )
 
         if self._scope_id == "default":
             data_sources_config_url: str = (
                 data_sources_config_url
-                or opal_client_config.DEFAULT_DATA_SOURCES_CONFIG_URL
+                or opalclient_config.DEFAULT_DATA_SOURCES_CONFIG_URL
             )
         else:
             data_sources_config_url = (
-                f"{opal_client_config.SERVER_URL}/scopes/{self._scope_id}/data"
+                f"{opalclient_config.SERVER_URL}/scopes/{self._scope_id}/data"
             )
             self._data_topics = [
                 f"{self._scope_id}:data:{topic}" for topic in self._data_topics
@@ -93,7 +93,7 @@ class DataUpdater:
         self._should_send_reports = (
             should_send_reports
             if should_send_reports is not None
-            else opal_client_config.SHOULD_REPORT_ON_DATA_UPDATES
+            else opalclient_config.SHOULD_REPORT_ON_DATA_UPDATES
         )
         # The pub/sub client for data updates
         self._client = None
@@ -108,7 +108,7 @@ class DataUpdater:
         self._token = token
         self._server_url = pubsub_url
         self._data_sources_config_url = data_sources_config_url
-        self._opal_client_id = opal_client_id
+        self._opalclient_id = opalclient_id
         if self._token is None:
             self._extra_headers = None
         else:
@@ -219,7 +219,7 @@ class DataUpdater:
                 [opal_common_config.STATISTICS_ADD_CLIENT_CHANNEL],
                 data={
                     "topics": self._data_topics,
-                    "client_id": self._opal_client_id,
+                    "client_id": self._opalclient_id,
                     "rpc_id": channel.id,
                 },
             )
@@ -243,7 +243,7 @@ class DataUpdater:
             methods_class=TenantAwareRpcEventClientMethods,
             on_connect=[self.on_connect],
             extra_headers=self._extra_headers,
-            keep_alive=opal_client_config.KEEP_ALIVE_INTERVAL,
+            keep_alive=opalclient_config.KEEP_ALIVE_INTERVAL,
             server_uri=self._server_url,
             **self._ssl_context_kwargs,
         )

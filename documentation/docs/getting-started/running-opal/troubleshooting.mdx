@@ -21,13 +21,13 @@ In case all you see in the logs is something like this:
 
 ```
 2021-06-26T16:39:33.143143+0300 |opal_common.fetcher.fetcher_register    | INFO  | Fetcher Register loaded
-2021-06-26T16:39:33.145399+0300 |opal_client.opa.runner                  | INFO  | Launching opa runner
-2021-06-26T16:39:33.146177+0300 |opal_client.opa.runner                  | INFO  | Running OPA inline: opa run --server --addr=:8181 --authentication=off --authorization=off --log-level=info
-2021-06-26T16:39:34.155196+0300 |opal_client.opa.runner                  | INFO  | Running OPA initial start callbacks
-2021-06-26T16:39:34.156273+0300 |opal_client.data.updater                | INFO  | Launching data updater
-2021-06-26T16:39:34.156519+0300 |opal_client.policy.updater              | INFO  | Launching policy updater
-2021-06-26T16:39:34.156678+0300 |opal_client.data.updater                | INFO  | Subscribing to topics: ['policy_data']
-2021-06-26T16:39:34.157030+0300 |opal_client.policy.updater              | INFO  | Subscribing to topics: ['policy:.']
+2021-06-26T16:39:33.145399+0300 |opalclient.opa.runner                  | INFO  | Launching opa runner
+2021-06-26T16:39:33.146177+0300 |opalclient.opa.runner                  | INFO  | Running OPA inline: opa run --server --addr=:8181 --authentication=off --authorization=off --log-level=info
+2021-06-26T16:39:34.155196+0300 |opalclient.opa.runner                  | INFO  | Running OPA initial start callbacks
+2021-06-26T16:39:34.156273+0300 |opalclient.data.updater                | INFO  | Launching data updater
+2021-06-26T16:39:34.156519+0300 |opalclient.policy.updater              | INFO  | Launching policy updater
+2021-06-26T16:39:34.156678+0300 |opalclient.data.updater                | INFO  | Subscribing to topics: ['policy_data']
+2021-06-26T16:39:34.157030+0300 |opalclient.policy.updater              | INFO  | Subscribing to topics: ['policy:.']
 ```
 
 It means that you logging verbosity does not include the RPC and Pub/Sub logs. You can control the logging verbosity with the following env vars:

@@ -4,19 +4,19 @@ There are three important concepts in the configuration of the OPAL Server that 
 
 ```yml showLineNumbers
 services:
-  opal_server:
+  opalserver:
     image: permitio/opal-server:latest
     environment:
-      - OPAL_BROADCAST_URI=postgres://postgres:postgres@broadcast_channel:5432/postgres
+      - OPAL_BROADCAST_URI=postgres://postgres:postgres@broadcastchannel:5432/postgres
       - UVICORN_NUM_WORKERS=4
-      - OPAL_POLICY_REPO_URL=https://github.com/permitio/opal-example-policy-repo
+      - OPAL_POLICY_REPO_URL=https://github.com/gvangest/opal-example-policy-repo
       - OPAL_POLICY_REPO_POLLING_INTERVAL=30
-      - OPAL_DATA_CONFIG_SOURCES={"config":{"entries":[{"url":"http://opal_server:7002/policy-data","topics":["policy_data"],"dst_path":"/static"}]}}
+      - OPAL_DATA_CONFIG_SOURCES={"config":{"entries":[{"url":"http://opalserver:7002/policy-data","topics":["policy_data"],"dst_path":"/static"}]}}
       - OPAL_LOG_FORMAT_INCLUDE_PID=true
     ports:
       - "7002:7002"
     depends_on:
-      - broadcast_channel
+      - broadcastchannel
 ```
 
 ### 1. Policy-data basic configuration
@@ -39,7 +39,7 @@ In our example `docker-compose.yml` file, the server is configured to return the
 This is what it looks like:
 
 ```yml
-OPAL_DATA_CONFIG_SOURCES={"config":{"entries":[{"url":"http://opal_server:7002/policy-data","topics":["policy_data"],"dst_path":"/static"}]}}
+OPAL_DATA_CONFIG_SOURCES={"config":{"entries":[{"url":"http://opalserver:7002/policy-data","topics":["policy_data"],"dst_path":"/static"}]}}
 ```
 
 We fetch the `/policy-data` route on the OPAL server and **assign it to the root data document on OPA** - `i.e: /`.
@@ -50,7 +50,7 @@ The **OPAL server tracks a git repository** and feeds the policy code, or more a
 `.rego` files along with static data files like `data.json` directly to OPA as a policy.
 
 ```yml
-OPAL_POLICY_REPO_URL=https://github.com/permitio/opal-example-policy-repo
+OPAL_POLICY_REPO_URL=https://github.com/gvangest/opal-example-policy-repo
 ```
 
 If new commits will be pushed to this repository that affect `.rego` or data files, the updated policy will be pushed

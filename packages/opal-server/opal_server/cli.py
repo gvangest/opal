@@ -14,7 +14,7 @@ from opal_common.cli.docs import MainTexts
 from opal_common.cli.typer_app import get_typer_app
 from opal_common.config import opal_common_config
 from opal_common.corn_utils import run_gunicorn, run_uvicorn
-from opal_server.config import opal_server_config
+from opalserver.config import opalserver_config
 
 app = get_typer_app()
 
@@ -26,20 +26,20 @@ def run(engine_type: str = typer.Option("uvicron", help="uvicorn or gunicorn")):
 
     if engine_type == "gunicorn":
         app: FastAPI
-        from opal_server.main import app
+        from opalserver.main import app
 
         run_gunicorn(
             app,
-            opal_server_config.SERVER_WORKER_COUNT,
-            host=opal_server_config.SERVER_HOST,
-            port=opal_server_config.SERVER_PORT,
+            opalserver_config.SERVER_WORKER_COUNT,
+            host=opalserver_config.SERVER_HOST,
+            port=opalserver_config.SERVER_PORT,
         )
     else:
         run_uvicorn(
-            "opal_server.main:app",
-            workers=opal_server_config.SERVER_WORKER_COUNT,
-            host=opal_server_config.SERVER_HOST,
-            port=opal_server_config.SERVER_PORT,
+            "opalserver.main:app",
+            workers=opalserver_config.SERVER_WORKER_COUNT,
+            host=opalserver_config.SERVER_HOST,
+            port=opalserver_config.SERVER_PORT,
         )
 
 
@@ -48,7 +48,7 @@ def print_config():
     """To test config values, print the configuration parsed from ENV and
     CMD."""
     typer.echo("Printing configuration values")
-    typer.echo(str(opal_server_config))
+    typer.echo(str(opalserver_config))
     typer.echo(str(opal_common_config))
 
 
@@ -62,7 +62,7 @@ def cli():
             typer.echo(ctx.get_usage())
             typer.echo(main_texts.docs)
 
-    opal_server_config.cli(
+    opalserver_config.cli(
         [opal_common_config], typer_app=app, help=main_texts.docs, on_start=on_start
     )
 

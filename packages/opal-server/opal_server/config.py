@@ -71,7 +71,7 @@ class OpalServerConfig(Confi):
     POLICY_REPO_URL = confi.str(
         "POLICY_REPO_URL",
         None,
-        description="Set your remote repo URL e.g:https://github.com/permitio/opal-example-policy-repo.git\
+        description="Set your remote repo URL e.g:https://github.com/gvangest/opal-example-policy-repo.git\
         , relevant only on GIT source type",
     )
     POLICY_BUNDLE_URL = confi.str(
@@ -105,7 +105,7 @@ class OpalServerConfig(Confi):
         "POLICY_REPO_CLONE_TIMEOUT", 0
     )  # if 0, waits forever until successful clone
     LEADER_LOCK_FILE_PATH = confi.str(
-        "LEADER_LOCK_FILE_PATH", "/tmp/opal_server_leader.lock"
+        "LEADER_LOCK_FILE_PATH", "/tmp/opalserver_leader.lock"
     )
     POLICY_BUNDLE_SERVER_TOKEN = confi.str(
         "POLICY_BUNDLE_SERVER_TOKEN",
@@ -199,13 +199,7 @@ class OpalServerConfig(Confi):
 
     # Git service webhook (Default is Github)
     POLICY_REPO_WEBHOOK_SECRET = confi.str("POLICY_REPO_WEBHOOK_SECRET", None)
-    # The topic the event of the webhook will publish
     POLICY_REPO_WEBHOOK_TOPIC = "webhook"
-    # Should we check the incoming webhook mentions the branch by name- and not just in the URL
-    POLICY_REPO_WEBHOOK_ENFORCE_BRANCH: bool = confi.bool(
-        "POLICY_REPO_WEBHOOK_ENFORCE_BRANCH", False
-    )
-    # Parameters controlling how the incoming webhook should be read and processed
     POLICY_REPO_WEBHOOK_PARAMS: GitWebhookRequestParams = confi.model(
         "POLICY_REPO_WEBHOOK_PARAMS",
         GitWebhookRequestParams,
@@ -284,4 +278,4 @@ class OpalServerConfig(Confi):
     )
 
 
-opal_server_config = OpalServerConfig(prefix="OPAL_")
+opalserver_config = OpalServerConfig(prefix="OPAL_")

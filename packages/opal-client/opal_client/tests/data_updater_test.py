@@ -17,13 +17,13 @@ root_dir = os.path.abspath(
 )
 sys.path.append(root_dir)
 
-from opal_client.config import opal_client_config
-from opal_client.data.rpc import TenantAwareRpcEventClientMethods
-from opal_client.data.updater import DataSourceEntry, DataUpdate, DataUpdater
-from opal_client.policy_store.policy_store_client_factory import (
+from opalclient.config import opalclient_config
+from opalclient.data.rpc import TenantAwareRpcEventClientMethods
+from opalclient.data.updater import DataSourceEntry, DataUpdate, DataUpdater
+from opalclient.policy_store.policy_store_client_factory import (
     PolicyStoreClientFactory,
 )
-from opal_client.policy_store.schemas import PolicyStoreTypes
+from opalclient.policy_store.schemas import PolicyStoreTypes
 from opal_common.schemas.data import (
     DataSourceConfig,
     DataUpdateReport,
@@ -31,14 +31,14 @@ from opal_common.schemas.data import (
     UpdateCallback,
 )
 from opal_common.utils import get_authorization_header
-from opal_server.config import opal_server_config
-from opal_server.server import OpalServer
+from opalserver.config import opalserver_config
+from opalserver.server import OpalServer
 
 PORT = int(os.environ.get("PORT") or "9123")
 UPDATES_URL = f"ws://localhost:{PORT}/ws"
 DATA_ROUTE = "/fetchable_data"
 DATA_URL = f"http://localhost:{PORT}{DATA_ROUTE}"
-DATA_CONFIG_URL = f"http://localhost:{PORT}{opal_server_config.DATA_CONFIG_ROUTE}"
+DATA_CONFIG_URL = f"http://localhost:{PORT}{opalserver_config.DATA_CONFIG_ROUTE}"
 DATA_TOPICS = ["policy_data"]
 TEST_DATA = {"hello": "world"}
 
@@ -112,7 +112,7 @@ def trigger_update():
         async with PubSubClient(
             server_uri=UPDATES_URL,
             methods_class=TenantAwareRpcEventClientMethods,
-            extra_headers=[get_authorization_header(opal_client_config.CLIENT_TOKEN)],
+            extra_headers=[get_authorization_header(opalclient_config.CLIENT_TOKEN)],
         ) as client:
             # Channel must be ready before we can publish on it
             await asyncio.wait_for(client.wait_until_ready(), 5)

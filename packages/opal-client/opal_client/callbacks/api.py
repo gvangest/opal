@@ -1,8 +1,8 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
-from opal_client.callbacks.register import CallbacksRegister
-from opal_client.config import opal_client_config
+from opalclient.callbacks.register import CallbacksRegister
+from opalclient.config import opalclient_config
 from opal_common.authentication.authz import require_peer_type
 from opal_common.authentication.deps import JWTAuthenticator
 from opal_common.authentication.types import JWTClaims

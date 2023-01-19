@@ -1,8 +1,8 @@
 from enum import Enum
 
-from opal_client.opa.options import OpaServerOptions
-from opal_client.policy.options import PolicyConnRetryOptions
-from opal_client.policy_store.schemas import PolicyStoreTypes
+from opalclient.opa.options import OpaServerOptions
+from opalclient.policy_store.options import PolicyStoreConnRetryOptions
+from opalclient.policy_store.schemas import PolicyStoreTypes
 from opal_common.confi import Confi, confi
 from opal_common.config import opal_common_config
 from opal_common.fetcher.providers.http_fetch_provider import HttpFetcherConfig
@@ -28,28 +28,16 @@ class OpalClientConfig(Confi):
         None,
         description="the authentication (bearer) token OPAL client will use to authenticate against the policy store (i.e: OPA agent)",
     )
-    POLICY_STORE_CONN_RETRY: PolicyConnRetryOptions = confi.model(
+    POLICY_STORE_CONN_RETRY = confi.model(
         "POLICY_STORE_CONN_RETRY",
-        PolicyConnRetryOptions,
-        # defaults are being set according to PolicyStoreConnRetryOptions pydantic definitions (see class)
-        {},
-        description="retry options when connecting to the policy store (i.e. the agent that handles the policy, e.g. OPA)",
+        PolicyStoreConnRetryOptions,
+        {},  # defaults are being set according to PolicyStoreConnRetryOptions pydantic definitions (see class)
+        description="retry options when connecting to the policy store",
     )
-    POLICY_UPDATER_CONN_RETRY: PolicyConnRetryOptions = confi.model(
-        "POLICY_UPDATER_CONN_RETRY",
-        PolicyConnRetryOptions,
-        {
-            "wait_strategy": "random_exponential",
-            "max_wait": 10,
-            "attempts": 5,
-            "wait_time": 1,
-        },
-        description="retry options when connecting to the policy source (e.g. the policy bundle server)",
-    )
-
     # create an instance of a policy store upon load
+
     def load_policy_store():
-        from opal_client.policy_store.policy_store_client_factory import (
+        from opalclient.policy_store.policy_store_client_factory import (
             PolicyStoreClientFactory,
         )
 
@@ -148,9 +136,7 @@ class OpalClientConfig(Confi):
     )
 
     DATA_TOPICS = confi.list(
-        "DATA_TOPICS",
-        ["policy_data"],
-        description="Data topics to subscribe to",
+        "DATA_TOPICS", ["policy_data"], description="Data topics to subscribe to"
     )
 
     DEFAULT_DATA_SOURCES_CONFIG_URL = confi.str(
@@ -204,9 +190,7 @@ class OpalClientConfig(Confi):
     )
 
     OPAL_CLIENT_STAT_ID = confi.str(
-        "OPAL_CLIENT_STAT_ID",
-        None,
-        description="Unique client statistics identifier",
+        "OPAL_CLIENT_STAT_ID", None, description="Unique client statistics identifier"
     )
 
     OPA_HEALTH_CHECK_POLICY_PATH = "opa/healthcheck/opal.rego"
@@ -216,11 +200,11 @@ class OpalClientConfig(Confi):
     def on_load(self):
         # LOGGER
         if self.INLINE_OPA_LOG_FORMAT == OpaLogFormat.NONE:
-            opal_common_config.LOG_MODULE_EXCLUDE_LIST.append("opal_client.opa.logger")
+            opal_common_config.LOG_MODULE_EXCLUDE_LIST.append("opalclient.opa.logger")
             # re-assign to apply to internal confi-entries as well
             opal_common_config.LOG_MODULE_EXCLUDE_LIST = (
                 opal_common_config.LOG_MODULE_EXCLUDE_LIST
             )
 
 
-opal_client_config = OpalClientConfig(prefix="OPAL_")
+opalclient_config = OpalClientConfig(prefix="OPAL_")

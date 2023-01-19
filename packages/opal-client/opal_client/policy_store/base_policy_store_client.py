@@ -5,8 +5,8 @@ from functools import partial
 from inspect import signature
 from typing import Any, Dict, List, Optional, Union
 
-from opal_client.config import opal_client_config
-from opal_client.logger import logger
+from opalclient.config import opalclient_config
+from opalclient.logger import logger
 from opal_common.schemas.data import JsonableValue
 from opal_common.schemas.policy import PolicyBundle
 from opal_common.schemas.store import RemoteStatus, StoreTransaction
@@ -230,7 +230,7 @@ class BasePolicyStoreClient(AbstractPolicyStore):
                 remotes_status=remotes_status,
             )
 
-        if not opal_client_config.OPA_HEALTH_CHECK_POLICY_ENABLED:
+        if not opalclient_config.OPA_HEALTH_CHECK_POLICY_ENABLED:
             return  # skip persisting the transaction, healthcheck policy is disabled
 
         try:

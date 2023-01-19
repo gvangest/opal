@@ -10,7 +10,7 @@ from fastapi_websocket_pubsub.event_notifier import Subscription, TopicList
 from fastapi_websocket_pubsub.pub_sub_server import PubSubEndpoint
 from opal_common.config import opal_common_config
 from opal_common.logger import get_logger
-from opal_server.config import opal_server_config
+from opalserver.config import opalserver_config
 from pydantic import BaseModel, Field
 
 
@@ -82,11 +82,11 @@ class OpalStatistics:
         """subscribe to two channels to be able to sync add and delete of
         clients."""
         await self._endpoint.subscribe(
-            [opal_server_config.STATISTICS_WAKEUP_CHANNEL],
+            [opalserver_config.STATISTICS_WAKEUP_CHANNEL],
             self._receive_other_worker_wakeup_message,
         )
         await self._endpoint.subscribe(
-            [opal_server_config.STATISTICS_STATE_SYNC_CHANNEL],
+            [opalserver_config.STATISTICS_STATE_SYNC_CHANNEL],
             self._receive_other_worker_synced_state,
         )
         await self._endpoint.subscribe(
@@ -107,7 +107,7 @@ class OpalStatistics:
         logger.info(f"sending stats wakeup message: {self._worker_id}")
         asyncio.create_task(
             self._endpoint.publish(
-                [opal_server_config.STATISTICS_WAKEUP_CHANNEL],
+                [opalserver_config.STATISTICS_WAKEUP_CHANNEL],
                 SyncRequest(requesting_worker_id=self._worker_id).dict(),
             )
         )
@@ -156,7 +156,7 @@ class OpalStatistics:
                 )
                 asyncio.create_task(
                     self._endpoint.publish(
-                        [opal_server_config.STATISTICS_STATE_SYNC_CHANNEL],
+                        [opalserver_config.STATISTICS_STATE_SYNC_CHANNEL],
                         SyncResponse(
                             requesting_worker_id=request.requesting_worker_id,
                             clients=self._state.clients,
@@ -222,7 +222,7 @@ class OpalStatistics:
                     # Limiting the number of channels per client to avoid memory issues if client opens too many channels
                     if (
                         len(self._state.clients[client_id])
-                        < opal_server_config.MAX_CHANNELS_PER_CLIENT
+                        < opalserver_config.MAX_CHANNELS_PER_CLIENT
                     ):
                         self._state.clients[client_id].append(stats)
                     else:

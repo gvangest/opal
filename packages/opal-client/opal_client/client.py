@@ -10,20 +10,20 @@ import aiohttp
 import websockets
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
-from opal_client.callbacks.api import init_callbacks_api
-from opal_client.callbacks.register import CallbacksRegister
-from opal_client.config import PolicyStoreTypes, opal_client_config
-from opal_client.data.api import init_data_router
-from opal_client.data.fetcher import DataFetcher
-from opal_client.data.updater import DataUpdater
-from opal_client.limiter import StartupLoadLimiter
-from opal_client.opa.options import OpaServerOptions
-from opal_client.opa.runner import OpaRunner
-from opal_client.policy.api import init_policy_router
-from opal_client.policy.updater import PolicyUpdater
-from opal_client.policy_store.api import init_policy_store_router
-from opal_client.policy_store.base_policy_store_client import BasePolicyStoreClient
-from opal_client.policy_store.policy_store_client_factory import (
+from opalclient.callbacks.api import init_callbacks_api
+from opalclient.callbacks.register import CallbacksRegister
+from opalclient.config import PolicyStoreTypes, opalclient_config
+from opalclient.data.api import init_data_router
+from opalclient.data.fetcher import DataFetcher
+from opalclient.data.updater import DataUpdater
+from opalclient.limiter import StartupLoadLimiter
+from opalclient.opa.options import OpaServerOptions
+from opalclient.opa.runner import OpaRunner
+from opalclient.policy.api import init_policy_router
+from opalclient.policy.updater import PolicyUpdater
+from opalclient.policy_store.api import init_policy_store_router
+from opalclient.policy_store.base_policy_store_client import BasePolicyStoreClient
+from opalclient.policy_store.policy_store_client_factory import (
     PolicyStoreClientFactory,
 )
 from opal_common.authentication.deps import JWTAuthenticator
@@ -57,16 +57,16 @@ class OpalClient:
         """
         # defaults
         policy_store_type: PolicyStoreTypes = (
-            policy_store_type or opal_client_config.POLICY_STORE_TYPE
+            policy_store_type or opalclient_config.POLICY_STORE_TYPE
         )
         inline_opa_enabled: bool = (
-            inline_opa_enabled or opal_client_config.INLINE_OPA_ENABLED
+            inline_opa_enabled or opalclient_config.INLINE_OPA_ENABLED
         )
         inline_opa_options: OpaServerOptions = (
-            inline_opa_options or opal_client_config.INLINE_OPA_CONFIG
+            inline_opa_options or opalclient_config.INLINE_OPA_CONFIG
         )
-        opal_client_identifier: str = (
-            opal_client_config.OPAL_CLIENT_STAT_ID or f"CLIENT_{uuid.uuid4().hex}"
+        opalclient_identifier: str = (
+            opalclient_config.OPAL_CLIENT_STAT_ID or f"CLIENT_{uuid.uuid4().hex}"
         )
         # set logs
         configure_logs()
@@ -78,15 +78,15 @@ class OpalClient:
         # data fetcher
         self.data_fetcher = DataFetcher()
         # callbacks register
-        if hasattr(opal_client_config.DEFAULT_UPDATE_CALLBACKS, "callbacks"):
-            default_callbacks = opal_client_config.DEFAULT_UPDATE_CALLBACKS.callbacks
+        if hasattr(opalclient_config.DEFAULT_UPDATE_CALLBACKS, "callbacks"):
+            default_callbacks = opalclient_config.DEFAULT_UPDATE_CALLBACKS.callbacks
         else:
             default_callbacks = []
 
         self._callbacks_register = CallbacksRegister(default_callbacks)
 
         self._startup_wait = None
-        if opal_client_config.WAIT_ON_SERVER_LOAD:
+        if opalclient_config.WAIT_ON_SERVER_LOAD:
             self._startup_wait = StartupLoadLimiter()
 
         # Init policy updater
@@ -97,17 +97,17 @@ class OpalClient:
                 policy_store=self.policy_store,
                 data_fetcher=self.data_fetcher,
                 callbacks_register=self._callbacks_register,
-                opal_client_id=opal_client_identifier,
+                opalclient_id=opalclient_identifier,
             )
         # Data updating service
-        if opal_client_config.DATA_UPDATER_ENABLED:
+        if opalclient_config.DATA_UPDATER_ENABLED:
             if data_updater is not None:
                 self.data_updater = data_updater
             else:
                 data_topics = (
                     data_topics
                     if data_topics is not None
-                    else opal_client_config.DATA_TOPICS
+                    else opalclient_config.DATA_TOPICS
                 )
 
                 self.data_updater = DataUpdater(
@@ -115,7 +115,7 @@ class OpalClient:
                     data_topics=data_topics,
                     data_fetcher=self.data_fetcher,
                     callbacks_register=self._callbacks_register,
-                    opal_client_id=opal_client_identifier,
+                    opalclient_id=opalclient_identifier,
                 )
         else:
             self.data_updater = None
@@ -140,7 +140,7 @@ class OpalClient:
 
             self.opa_runner = OpaRunner.setup_opa_runner(
                 options=inline_opa_options,
-                piped_logs_format=opal_client_config.INLINE_OPA_LOG_FORMAT,
+                piped_logs_format=opalclient_config.INLINE_OPA_LOG_FORMAT,
                 rehydration_callbacks=rehydration_callbacks,
             )
         else:
@@ -310,10 +310,10 @@ class OpalClient:
         transaction log used by the policy. If any action fails, opal
         client will shutdown.
         """
-        if not opal_client_config.OPA_HEALTH_CHECK_POLICY_ENABLED:
+        if not opalclient_config.OPA_HEALTH_CHECK_POLICY_ENABLED:
             return  # skip
 
-        healthcheck_policy_relpath = opal_client_config.OPA_HEALTH_CHECK_POLICY_PATH
+        healthcheck_policy_relpath = opalclient_config.OPA_HEALTH_CHECK_POLICY_PATH
 
         here = os.path.abspath(os.path.dirname(__file__))
         healthcheck_policy_path = os.path.join(here, healthcheck_policy_relpath)
@@ -336,7 +336,7 @@ class OpalClient:
             await self.policy_store.init_healthcheck_policy(
                 policy_id=healthcheck_policy_relpath,
                 policy_code=healthcheck_policy_code,
-                data_updater_enabled=opal_client_config.DATA_UPDATER_ENABLED,
+                data_updater_enabled=opalclient_config.DATA_UPDATER_ENABLED,
             )
         except aiohttp.ClientError as err:
             logger.error(

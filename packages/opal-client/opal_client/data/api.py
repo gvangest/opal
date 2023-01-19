@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, status
-from opal_client.data.updater import DataUpdater
+from opalclient.data.updater import DataUpdater
 from opal_common.logger import logger
 
 

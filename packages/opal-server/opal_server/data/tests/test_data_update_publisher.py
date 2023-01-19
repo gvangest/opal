@@ -1,4 +1,4 @@
-from opal_server.data.data_update_publisher import DataUpdatePublisher
+from opalserver.data.data_update_publisher import DataUpdatePublisher
 
 
 def test_topic_combos():

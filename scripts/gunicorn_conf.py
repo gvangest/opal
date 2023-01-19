@@ -9,7 +9,7 @@ def post_fork(server, worker):
     if not rookout_token:
         return
 
-    service = os.getenv("ROOKOUT_SERVICE", "opal_server")
+    service = os.getenv("ROOKOUT_SERVICE", "opalserver")
     env = os.getenv("ROOKOUT_ENV", "dev")
     user = os.getenv("ROOKOUT_USER", None)
 

@@ -36,7 +36,7 @@ The authorization used in this example are GitHub Personal Access Tokens that
 can be [generated here](https://github.com/settings/tokens).
 
 ```shell
-curl --request PUT 'http://opal_server/scopes'
+curl --request PUT 'http://opalserver/scopes'
 --header 'Content-Type: application/json'
 --header 'Authorization: $OPAL_TOKEN'
 --data-raw '{
@@ -66,7 +66,7 @@ curl --request PUT 'http://opal_server/scopes'
 ```
 
 ```shell
-curl --request PUT 'http://opal_server/scopes'
+curl --request PUT 'http://opalserver/scopes'
 --header 'Content-Type: application/json'
 --header 'Authorization: $OPAL_TOKEN'
 --data-raw '{

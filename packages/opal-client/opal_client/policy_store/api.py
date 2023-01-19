@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
-from opal_client.config import opal_client_config
-from opal_client.policy_store.schemas import PolicyStoreDetails
+from opalclient.config import opalclient_config
+from opalclient.policy_store.schemas import PolicyStoreDetails
 from opal_common.authentication.authz import require_peer_type
 from opal_common.authentication.deps import JWTAuthenticator
 from opal_common.authentication.types import JWTClaims
@@ -27,8 +27,8 @@ def init_policy_store_router(authenticator: JWTAuthenticator):
             raise
 
         return PolicyStoreDetails(
-            url=opal_client_config.POLICY_STORE_URL,
-            token=opal_client_config.POLICY_STORE_AUTH_TOKEN or None,
+            url=opalclient_config.POLICY_STORE_URL,
+            token=opalclient_config.POLICY_STORE_AUTH_TOKEN or None,
         )
 
     return router

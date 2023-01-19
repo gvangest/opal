@@ -4,15 +4,15 @@ from typing import List, Optional
 import pydantic
 from fastapi_websocket_pubsub import PubSubClient
 from fastapi_websocket_rpc.rpc_channel import RpcChannel
-from opal_client.callbacks.register import CallbacksRegister
-from opal_client.callbacks.reporter import CallbacksReporter
-from opal_client.config import opal_client_config
-from opal_client.data.fetcher import DataFetcher
-from opal_client.logger import logger
-from opal_client.policy.fetcher import PolicyFetcher
-from opal_client.policy.topics import default_subscribed_policy_directories
-from opal_client.policy_store.base_policy_store_client import BasePolicyStoreClient
-from opal_client.policy_store.policy_store_client_factory import (
+from opalclient.callbacks.register import CallbacksRegister
+from opalclient.callbacks.reporter import CallbacksReporter
+from opalclient.config import opalclient_config
+from opalclient.data.fetcher import DataFetcher
+from opalclient.logger import logger
+from opalclient.policy.fetcher import PolicyFetcher
+from opalclient.policy.topics import default_subscribed_policy_directories
+from opalclient.policy_store.base_policy_store_client import BasePolicyStoreClient
+from opalclient.policy_store.policy_store_client_factory import (
     DEFAULT_POLICY_STORE_GETTER,
 )
 from opal_common.config import opal_common_config
@@ -41,7 +41,7 @@ class PolicyUpdater:
         policy_store: BasePolicyStoreClient = None,
         data_fetcher: Optional[DataFetcher] = None,
         callbacks_register: Optional[CallbacksRegister] = None,
-        opal_client_id: str = None,
+        opalclient_id: str = None,
     ):
         """inits the policy updater.
 
@@ -55,13 +55,13 @@ class PolicyUpdater:
             policy_store (BasePolicyStoreClient, optional): Policy store client to use to store policy code. Defaults to DEFAULT_POLICY_STORE.
         """
         # defaults
-        token: str = token or opal_client_config.CLIENT_TOKEN
-        pubsub_url: str = pubsub_url or opal_client_config.SERVER_PUBSUB_URL
+        token: str = token or opalclient_config.CLIENT_TOKEN
+        pubsub_url: str = pubsub_url or opalclient_config.SERVER_PUBSUB_URL
         self._subscription_directories: List[str] = (
-            subscription_directories or opal_client_config.POLICY_SUBSCRIPTION_DIRS
+            subscription_directories or opalclient_config.POLICY_SUBSCRIPTION_DIRS
         )
-        self._opal_client_id = opal_client_id
-        self._scope_id = opal_client_config.SCOPE_ID
+        self._opalclient_id = opalclient_id
+        self._scope_id = opalclient_config.SCOPE_ID
 
         # The policy store we'll save policy modules into (i.e: OPA)
         self._policy_store = policy_store or DEFAULT_POLICY_STORE_GETTER()
@@ -93,7 +93,7 @@ class PolicyUpdater:
             self._callbacks_register, self._data_fetcher
         )
         self._should_send_reports = (
-            opal_client_config.SHOULD_REPORT_ON_DATA_UPDATES or False
+            opalclient_config.SHOULD_REPORT_ON_DATA_UPDATES or False
         )
         # custom SSL context (for self-signed certificates)
         self._custom_ssl_context = get_custom_ssl_context()
@@ -162,7 +162,7 @@ class PolicyUpdater:
                 [opal_common_config.STATISTICS_ADD_CLIENT_CHANNEL],
                 data={
                     "topics": self._topics,
-                    "client_id": self._opal_client_id,
+                    "client_id": self._opalclient_id,
                     "rpc_id": channel.id,
                 },
             )
@@ -224,7 +224,7 @@ class PolicyUpdater:
             on_connect=[self._on_connect],
             on_disconnect=[self._on_disconnect],
             extra_headers=self._extra_headers,
-            keep_alive=opal_client_config.KEEP_ALIVE_INTERVAL,
+            keep_alive=opalclient_config.KEEP_ALIVE_INTERVAL,
             server_uri=self._server_url,
             **self._ssl_context_kwargs,
         )

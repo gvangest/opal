@@ -13,8 +13,8 @@ from fastapi import Depends
 from fastapi_websocket_pubsub import PubSubClient
 from flaky import flaky
 from opal_common.schemas.webhook import GitWebhookRequestParams
-from opal_server.policy.webhook.api import get_webhook_router, is_matching_webhook_url
-from opal_server.policy.webhook.deps import extracted_git_changes
+from opalserver.policy.webhook.api import get_webhook_router
+from opalserver.policy.webhook.deps import affected_repo_urls
 
 # Add parent path to use local src as package for tests
 root_dir = os.path.abspath(
@@ -24,7 +24,7 @@ sys.path.append(root_dir)
 
 
 from opal_common.utils import get_authorization_header
-from opal_server.config import PolicySourceTypes, opal_server_config
+from opalserver.config import PolicySourceTypes, opalserver_config
 
 PORT = int(os.environ.get("PORT") or "9123")
 
@@ -41,8 +41,8 @@ PUBLISHED_EVENTS_URL = f"http://localhost:{PORT}{PUBLISHED_EVENTS_ROUTE}"
 REPO_URL = "https://github.com/permitio/opal"
 
 # configure the server to work with a fake secret and our mock repository
-opal_server_config.POLICY_REPO_WEBHOOK_SECRET = "SECRET"
-opal_server_config.POLICY_REPO_URL = REPO_URL
+opalserver_config.POLICY_REPO_WEBHOOK_SECRET = "SECRET"
+opalserver_config.POLICY_REPO_URL = REPO_URL
 
 
 # Github mock example
@@ -58,7 +58,7 @@ GITHUB_WEBHOOK_BODY_SAMPLE = {
     },
 }
 SIGNATURE = hmac.new(
-    opal_server_config.POLICY_REPO_WEBHOOK_SECRET.encode("utf-8"),
+    opalserver_config.POLICY_REPO_WEBHOOK_SECRET.encode("utf-8"),
     json.dumps(GITHUB_WEBHOOK_BODY_SAMPLE).encode("utf-8"),
     hashlib.sha256,
 ).hexdigest()
@@ -129,7 +129,7 @@ GITLAB_WEBHOOK_BODY_SAMPLE = {
 }
 GITLAB_WEBHOOK_HEADERS = {
     "X-Gitlab-Event": "Push Hook",
-    "X-Gitlab-Token": opal_server_config.POLICY_REPO_WEBHOOK_SECRET,
+    "X-Gitlab-Token": opalserver_config.POLICY_REPO_WEBHOOK_SECRET,
 }
 
 #######
@@ -190,7 +190,7 @@ AZURE_GIT_WEBHOOK_BODY_SAMPLE = {
     "createdDate": "2022-12-15T17:28:23.1937259Z",
 }
 AZURE_GIT_WEBHOOK_HEADERS = {
-    "x-api-key": opal_server_config.POLICY_REPO_WEBHOOK_SECRET,
+    "x-api-key": opalserver_config.POLICY_REPO_WEBHOOK_SECRET,
 }
 
 
@@ -211,7 +211,7 @@ def setup_server(event, webhook_config):
 
     webhook_router = get_webhook_router(
         None,
-        Depends(extracted_git_changes),
+        Depends(affected_repo_urls),
         PolicySourceTypes.Git,
         publish,
         webhook_config,
@@ -340,25 +340,3 @@ async def test_webhook_mock_azure_git(azure_git_mode_server):
         async with session.get(PUBLISHED_EVENTS_URL) as resp:
             json_body = await resp.json()
             assert "webhook" in json_body
-
-
-def test_webhook_url_matcher():
-    url = "https://git.permit.io/opal/server"
-    # these should all be equivalent to the above URL
-    urls = [
-        "https://user:pass@git.permit.io/opal/server",
-        "https://user@git.permit.io/opal/server",
-        "https://user@git.permit.io/opal/server?private=1",
-    ]
-
-    for test in urls:
-        assert is_matching_webhook_url(test, [url])
-
-    urls = [
-        "https://git.permit.io:9090/opal/server",
-        "http://git.permit.io/opal/server",
-        "https://git.permit.io/opal/client",
-    ]
-
-    for test in urls:
-        assert not is_matching_webhook_url(test, [url])

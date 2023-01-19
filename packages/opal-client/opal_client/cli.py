@@ -10,7 +10,7 @@ from typer.models import Context
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir))
 sys.path.append(root_dir)
 
-from opal_client.config import opal_client_config
+from opalclient.config import opalclient_config
 from opal_common.cli.docs import MainTexts
 from opal_common.cli.typer_app import get_typer_app
 from opal_common.config import opal_common_config
@@ -26,20 +26,20 @@ def run(engine_type: str = typer.Option("uvicron", help="uvicorn or gunicorn")):
 
     if engine_type == "gunicorn":
         app: FastAPI
-        from opal_client.main import app
+        from opalclient.main import app
 
         run_gunicorn(
             app,
-            opal_client_config.CLIENT_API_SERVER_WORKER_COUNT,
-            host=opal_client_config.CLIENT_API_SERVER_HOST,
-            port=opal_client_config.CLIENT_API_SERVER_PORT,
+            opalclient_config.CLIENT_API_SERVER_WORKER_COUNT,
+            host=opalclient_config.CLIENT_API_SERVER_HOST,
+            port=opalclient_config.CLIENT_API_SERVER_PORT,
         )
     else:
         run_uvicorn(
-            "opal_client.main:app",
-            workers=opal_client_config.CLIENT_API_SERVER_WORKER_COUNT,
-            host=opal_client_config.CLIENT_API_SERVER_HOST,
-            port=opal_client_config.CLIENT_API_SERVER_PORT,
+            "opalclient.main:app",
+            workers=opalclient_config.CLIENT_API_SERVER_WORKER_COUNT,
+            host=opalclient_config.CLIENT_API_SERVER_HOST,
+            port=opalclient_config.CLIENT_API_SERVER_PORT,
         )
 
 
@@ -48,7 +48,7 @@ def print_config():
     """To test config values, print the configuration parsed from ENV and
     CMD."""
     typer.echo("Printing configuration values")
-    typer.echo(str(opal_client_config))
+    typer.echo(str(opalclient_config))
     typer.echo(str(opal_common_config))
 
 
@@ -62,7 +62,7 @@ def cli():
             typer.echo(ctx.get_usage())
             typer.echo(main_texts.docs)
 
-    opal_client_config.cli(
+    opalclient_config.cli(
         [opal_common_config], typer_app=app, help=main_texts.docs, on_start=on_start
     )
 

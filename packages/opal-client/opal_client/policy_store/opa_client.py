@@ -5,13 +5,13 @@ from typing import Any, Dict, List, Optional, Set
 
 import aiohttp
 from fastapi import Response, status
-from opal_client.config import opal_client_config
-from opal_client.logger import logger
-from opal_client.policy_store.base_policy_store_client import (
+from opalclient.config import opalclient_config
+from opalclient.logger import logger
+from opalclient.policy_store.base_policy_store_client import (
     BasePolicyStoreClient,
     JsonableValue,
 )
-from opal_client.utils import proxy_response
+from opalclient.utils import proxy_response
 from opal_common.git.bundle_utils import BundleUtils
 from opal_common.opa.parsing import get_rego_package
 from opal_common.schemas.policy import DataModule, PolicyBundle
@@ -22,7 +22,7 @@ from tenacity import retry
 JSONPatchDocument = List[JSONPatchAction]
 
 
-RETRY_CONFIG = opal_client_config.POLICY_STORE_CONN_RETRY.toTenacityConfig()
+RETRY_CONFIG = opalclient_config.POLICY_STORE_CONN_RETRY.toTenacityConfig()
 
 
 def fail_silently(fallback=None):
@@ -225,7 +225,7 @@ class OpaClient(BasePolicyStoreClient):
     POLICY_NAME = "rbac"
 
     def __init__(self, opa_server_url=None, opa_auth_token: Optional[str] = None):
-        base_url = opa_server_url or opal_client_config.POLICY_STORE_URL
+        base_url = opa_server_url or opalclient_config.POLICY_STORE_URL
         self._opa_url = f"{base_url}/v1"
         self._cached_policies: Dict[str, str] = {}
         self._policy_version: Optional[str] = None
@@ -316,7 +316,7 @@ class OpaClient(BasePolicyStoreClient):
         - all modules with package name starting with "system" (special OPA policies)
         """
         modules: List[Dict[str, Any]] = result.get("result", [])
-        builtin_modules = [opal_client_config.OPA_HEALTH_CHECK_POLICY_PATH]
+        builtin_modules = [opalclient_config.OPA_HEALTH_CHECK_POLICY_PATH]
 
         module_ids = []
         for module in modules:

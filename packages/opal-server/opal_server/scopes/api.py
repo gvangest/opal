@@ -29,10 +29,10 @@ from opal_common.schemas.policy_source import GitPolicyScopeSource, SSHAuthData
 from opal_common.schemas.scopes import Scope
 from opal_common.schemas.security import PeerType
 from opal_common.topics.publisher import ScopedServerSideTopicPublisher
-from opal_server.config import opal_server_config
-from opal_server.data.data_update_publisher import DataUpdatePublisher
-from opal_server.git_fetcher import GitPolicyFetcher
-from opal_server.scopes.scope_repository import ScopeNotFoundError, ScopeRepository
+from opalserver.config import opalserver_config
+from opalserver.data.data_update_publisher import DataUpdatePublisher
+from opalserver.git_fetcher import GitPolicyFetcher
+from opalserver.scopes.scope_repository import ScopeNotFoundError, ScopeRepository
 
 
 def verify_private_key(private_key: str, key_format: EncryptionKeyFormat) -> bool:
@@ -87,7 +87,7 @@ def init_scope_router(
 
         scheme, token = authorization.split(" ")
 
-        if scheme.lower() != "bearer" or token != opal_server_config.WORKER_TOKEN:
+        if scheme.lower() != "bearer" or token != opalserver_config.WORKER_TOKEN:
             raise Unauthorized()
 
     @router.put("", status_code=status.HTTP_201_CREATED)
@@ -112,7 +112,7 @@ def init_scope_router(
         force_fetch_str = " (force fetch)" if force_fetch else ""
         logger.info(f"Sync scope: {scope_in.scope_id}{force_fetch_str}")
 
-        from opal_server.worker import sync_scope
+        from opalserver.worker import sync_scope
 
         sync_scope.delay(scope_in.scope_id, force_fetch=force_fetch)
 
@@ -167,7 +167,7 @@ def init_scope_router(
 
         await scopes.delete(scope_id)
 
-        from opal_server.worker import delete_scope
+        from opalserver.worker import delete_scope
 
         delete_scope.delay(scope_id)
 
@@ -195,7 +195,7 @@ def init_scope_router(
 
             logger.info(f"Refresh scope: {scope_id}")
 
-            from opal_server.worker import sync_scope
+            from opalserver.worker import sync_scope
 
             # If the hinted hash is None, we have no way to know whether we should
             # re-fetch the remote, so we force fetch, just in case.
@@ -218,7 +218,7 @@ def init_scope_router(
             logger.error(f"Unauthorized to refresh all scopes: {repr(ex)}")
             raise
 
-        from opal_server.worker import schedule_sync_all_scopes
+        from opalserver.worker import schedule_sync_all_scopes
 
         await schedule_sync_all_scopes(scopes)
 
@@ -252,7 +252,7 @@ def init_scope_router(
             )
 
         fetcher = GitPolicyFetcher(
-            pathlib.Path(opal_server_config.BASE_DIR),
+            pathlib.Path(opalserver_config.BASE_DIR),
             scope.scope_id,
             cast(GitPolicyScopeSource, scope.policy),
         )

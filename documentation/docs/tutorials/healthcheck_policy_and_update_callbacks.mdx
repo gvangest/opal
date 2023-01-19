@@ -105,7 +105,7 @@ You'll get something like this as output:
 
 Please note: you don't need to understand this section to use the healthcheck policy. It goes into internal implementation of the feature, to the benefit of the interested reader.
 
-OPAL has an internal OpaClient class (code [here](https://github.com/permitio/opal/blob/master/packages/opal-client/opal_client/policy_store/opa_client.py#L140)) that is used to communicate with the OPA agent via its [REST API](https://www.openpolicyagent.org/docs/latest/rest-api/). The `OpaClient` class holds a `OpaTransactionLogState` object (code [here](https://github.com/permitio/opal/blob/master/packages/opal-client/opal_client/policy_store/opa_client.py#L58)) that represents (a **very** simplified version of) the state of synchronization between OPAL client and OPA.
+OPAL has an internal OpaClient class (code [here](https://github.com/permitio/opal/blob/master/packages/opal-client/opalclient/policy_store/opa_client.py#L140)) that is used to communicate with the OPA agent via its [REST API](https://www.openpolicyagent.org/docs/latest/rest-api/). The `OpaClient` class holds a `OpaTransactionLogState` object (code [here](https://github.com/permitio/opal/blob/master/packages/opal-client/opalclient/policy_store/opa_client.py#L58)) that represents (a **very** simplified version of) the state of synchronization between OPAL client and OPA.
 
 A transaction is initialized in the code using context managers:
 
@@ -115,7 +115,7 @@ async with policy_store.transaction_context(update.id) as store_transaction:
   await store_transaction.set_policy_data(policy_data, path=policy_store_path)
 ```
 
-Every time a transaction [is ended](https://github.com/permitio/opal/blob/master/packages/opal-client/opal_client/policy_store/base_policy_store_client.py#L116) it is saved into OPA, by rendering the state of `OpaTransactionLogState` using the [healthcheck policy template](https://github.com/permitio/opal/blob/master/packages/opal-client/opal_client/opa/healthcheck/opal.rego).
+Every time a transaction [is ended](https://github.com/permitio/opal/blob/master/packages/opal-client/opalclient/policy_store/base_policy_store_client.py#L116) it is saved into OPA, by rendering the state of `OpaTransactionLogState` using the [healthcheck policy template](https://github.com/permitio/opal/blob/master/packages/opal-client/opalclient/opa/healthcheck/opal.rego).
 
 ## <a name="callbacks"></a> Data update callbacks
 
@@ -140,7 +140,7 @@ OPAL_SHOULD_REPORT_ON_DATA_UPDATES=True
 Set a default callback (will be called after each successful data update):
 
 ```
-OPAL_DEFAULT_UPDATE_CALLBACKS={"callbacks":["http://opal_server:7002/data/callback_report"]}
+OPAL_DEFAULT_UPDATE_CALLBACKS={"callbacks":["http://opalserver:7002/data/callback_report"]}
 ```
 
 You can check out a complete docker-compose configuration that uses this feature [here](https://github.com/permitio/opal/blob/master/docker/docker-compose-with-callbacks.yml).
@@ -161,7 +161,7 @@ You may pass a (url, HttpFetcherConfig) tuple instead of a url (i.e: if your cal
 For example, you may set a default callback (will be called after each successful data update) that has special headers like this:
 
 ```
-OPAL_DEFAULT_UPDATE_CALLBACKS={"callbacks":[("http://opal_server:7002/data/callback_report",{"headers":{"X-My-Token":"token"}})]}
+OPAL_DEFAULT_UPDATE_CALLBACKS={"callbacks":[("http://opalserver:7002/data/callback_report",{"headers":{"X-My-Token":"token"}})]}
 ```
 
 #### If my update was successful, what is the expected log output?
@@ -169,7 +169,7 @@ OPAL_DEFAULT_UPDATE_CALLBACKS={"callbacks":[("http://opal_server:7002/data/callb
 After triggering an update via the API, your OPAL server log will look something like this:
 
 ```
-opal_server.data.data_update_publisher  | INFO  | [10] Publishing data update to topics: ['policy_data'], reason: , entries: [('https://api.country.is/23.54.6.78', 'PUT', '/users/bob/location')]
+opalserver.data.data_update_publisher  | INFO  | [10] Publishing data update to topics: ['policy_data'], reason: , entries: [('https://api.country.is/23.54.6.78', 'PUT', '/users/bob/location')]
 uvicorn.protocols.http.httptools_impl   | INFO  | 172.27.0.1:63456 - "POST /data/config HTTP/1.1" 200
 fastapi_websocket_pubsub.event_notifier | INFO  | calling subscription callbacks for sub_id=0d949d8473824c8280a3ff6ab9146cd0 with topic=policy_data
 fastapi_websocket_pubsub.event_broadc...| INFO  | Broadcasting incoming event
@@ -179,23 +179,23 @@ fastapi_websocket_pubsub.event_notifier | INFO  | calling subscription callbacks
 OPAL client will receive the update and will call the callback url (last log line):
 
 ```
-opal_client.data.rpc                    | INFO  | Received notification of event: policy_data
-opal_client.data.updater                | INFO  | Updating policy data, reason:
-opal_client.data.updater                | INFO  | Triggering data update with id: c83b6862aa354d338d1a9e23794e3efc
-opal_client.data.updater                | INFO  | Fetching policy data
-opal_client.data.fetcher                | INFO  | Fetching data from url: https://api.country.is/23.54.6.78
-opal_client.data.updater                | INFO  | Saving fetched data to policy-store: source url='https://api.country.is/23.54.6.78', destination path='/users/bob/location'
-opal_client.policy_store.opa_client     | INFO  | processing store transaction: {'id': 'c83b6862aa354d338d1a9e23794e3efc', 'actions': ['set_policy_data'], 'success': True, 'error': ''}
-opal_client.policy_store.opa_client     | INFO  | persisting health check policy: ready=true, healthy=true
-opal_client.data.updater                | INFO  | Reporting the update to requested callbacks
-opal_client.data.fetcher                | INFO  | Fetching data from url: http://opal_server:7002/data/callback_report
+opalclient.data.rpc                    | INFO  | Received notification of event: policy_data
+opalclient.data.updater                | INFO  | Updating policy data, reason:
+opalclient.data.updater                | INFO  | Triggering data update with id: c83b6862aa354d338d1a9e23794e3efc
+opalclient.data.updater                | INFO  | Fetching policy data
+opalclient.data.fetcher                | INFO  | Fetching data from url: https://api.country.is/23.54.6.78
+opalclient.data.updater                | INFO  | Saving fetched data to policy-store: source url='https://api.country.is/23.54.6.78', destination path='/users/bob/location'
+opalclient.policy_store.opa_client     | INFO  | processing store transaction: {'id': 'c83b6862aa354d338d1a9e23794e3efc', 'actions': ['set_policy_data'], 'success': True, 'error': ''}
+opalclient.policy_store.opa_client     | INFO  | persisting health check policy: ready=true, healthy=true
+opalclient.data.updater                | INFO  | Reporting the update to requested callbacks
+opalclient.data.fetcher                | INFO  | Fetching data from url: http://opalserver:7002/data/callback_report
 ```
 
 The called-back server will then receive the update:
 (in the example you see here, the OPAL server is the one receiving the callback payload, as was configured in the [example config](https://github.com/permitio/opal/blob/master/docker/docker-compose-with-callbacks.yml).)
 
 ```
-opal_server.data.api                    | INFO  | Recieved update report: {'update_id': 'c83b6862aa354d338d1a9e23794e3efc', 'reports': [{'entry': {'url': 'https://api.country.is/23.54.6.78', 'config': {}, 'topics': ['policy_data'], 'dst_path': '/users/bob/location', 'save_method': 'PUT'}, 'fetched': True, 'saved': True, 'hash': '3eb2f338beb6691bbeeeca60dc3f4afad74ec8c5881f8abe3aa23d57ffa48424'}]}
+opalserver.data.api                    | INFO  | Recieved update report: {'update_id': 'c83b6862aa354d338d1a9e23794e3efc', 'reports': [{'entry': {'url': 'https://api.country.is/23.54.6.78', 'config': {}, 'topics': ['policy_data'], 'dst_path': '/users/bob/location', 'save_method': 'PUT'}, 'fetched': True, 'saved': True, 'hash': '3eb2f338beb6691bbeeeca60dc3f4afad74ec8c5881f8abe3aa23d57ffa48424'}]}
 uvicorn.protocols.http.httptools_impl   | INFO  | 172.27.0.4:49720 - "POST /data/callback_report HTTP/1.1" 200
 ```
 
@@ -219,7 +219,7 @@ You will need to pass the following data in the HTTP POST request body:
     "callback": {
       "callbacks": [
         [
-          "http://opal_server:7002/data/callback_report",
+          "http://opalserver:7002/data/callback_report",
         ]
       ]
     }

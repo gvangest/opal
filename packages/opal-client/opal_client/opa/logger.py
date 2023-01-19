@@ -3,8 +3,8 @@ import logging
 from enum import Enum
 from typing import Optional
 
-from opal_client.config import OpaLogFormat
-from opal_client.logger import logger
+from opalclient.config import OpaLogFormat
+from opalclient.logger import logger
 
 
 def logging_level_from_string(level: str) -> int:

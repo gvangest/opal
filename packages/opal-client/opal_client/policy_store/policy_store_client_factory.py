@@ -1,8 +1,8 @@
 from typing import Dict, Optional
 
-from opal_client.config import opal_client_config
-from opal_client.policy_store.base_policy_store_client import BasePolicyStoreClient
-from opal_client.policy_store.schemas import PolicyStoreTypes
+from opalclient.config import opalclient_config
+from opalclient.policy_store.base_policy_store_client import BasePolicyStoreClient
+from opalclient.policy_store.schemas import PolicyStoreTypes
 
 
 class PolicyStoreClientFactoryException(Exception):
@@ -28,8 +28,8 @@ class PolicyStoreClientFactory:
         """Same as self.create() but with caching.
 
         Args:
-            store_type (PolicyStoreTypes, optional): The type of policy-store to use. Defaults to opal_client_config.POLICY_STORE_TYPE.
-            url (str, optional): the URL of the policy store. Defaults to opal_client_config.POLICY_STORE_URL.
+            store_type (PolicyStoreTypes, optional): The type of policy-store to use. Defaults to opalclient_config.POLICY_STORE_TYPE.
+            url (str, optional): the URL of the policy store. Defaults to opalclient_config.POLICY_STORE_URL.
             save_to_cache (bool, optional): Should the created value be saved to cache (To be obtained via the get method).
 
         Raises:
@@ -58,8 +58,8 @@ class PolicyStoreClientFactory:
         Factory method - create a new policy store by type.
 
         Args:
-            store_type (PolicyStoreTypes, optional): The type of policy-store to use. Defaults to opal_client_config.POLICY_STORE_TYPE.
-            url (str, optional): the URL of the policy store. Defaults to opal_client_config.POLICY_STORE_URL.
+            store_type (PolicyStoreTypes, optional): The type of policy-store to use. Defaults to opalclient_config.POLICY_STORE_TYPE.
+            url (str, optional): the URL of the policy store. Defaults to opalclient_config.POLICY_STORE_URL.
             save_to_cache (bool, optional): Should the created value be saved to cache (To be obtained via the get method).
 
         Raises:
@@ -69,18 +69,18 @@ class PolicyStoreClientFactory:
             BasePolicyStoreClient: the policy store client interface
         """
         # load defaults
-        store_type = store_type or opal_client_config.POLICY_STORE_TYPE
-        url = url or opal_client_config.POLICY_STORE_URL
-        store_token = token or opal_client_config.POLICY_STORE_AUTH_TOKEN
+        store_type = store_type or opalclient_config.POLICY_STORE_TYPE
+        url = url or opalclient_config.POLICY_STORE_URL
+        store_token = token or opalclient_config.POLICY_STORE_AUTH_TOKEN
 
         # OPA
         if PolicyStoreTypes.OPA == store_type:
-            from opal_client.policy_store.opa_client import OpaClient
+            from opalclient.policy_store.opa_client import OpaClient
 
             res = OpaClient(url, opa_auth_token=store_token)
         # MOCK
         elif PolicyStoreTypes.MOCK == store_type:
-            from opal_client.policy_store.mock_policy_store_client import (
+            from opalclient.policy_store.mock_policy_store_client import (
                 MockPolicyStoreClient,
             )
 

@@ -1,7 +1,7 @@
 import hashlib
 from typing import Dict, Generator, List, Optional, Tuple, Union
 
-from opal_client.config import opal_client_config
+from opalclient.config import opalclient_config
 from opal_common.fetcher.providers.http_fetch_provider import HttpFetcherConfig
 from opal_common.logger import logger
 from opal_common.schemas.data import CallbackEntry
@@ -40,7 +40,7 @@ class CallbacksRegister:
         for callback in callbacks:
             if isinstance(callback, str):
                 url = callback
-                config = opal_client_config.DEFAULT_UPDATE_CALLBACK_CONFIG
+                config = opalclient_config.DEFAULT_UPDATE_CALLBACK_CONFIG
                 normalized_callbacks.append((url, config))
             elif isinstance(callback, CallbackConfig):
                 normalized_callbacks.append(callback)
@@ -82,7 +82,7 @@ class CallbacksRegister:
         used. if no key is provided, the key will be calculated by
         hashing the url and config.
         """
-        default_config = opal_client_config.DEFAULT_UPDATE_CALLBACK_CONFIG
+        default_config = opalclient_config.DEFAULT_UPDATE_CALLBACK_CONFIG
         if isinstance(default_config, dict):
             default_config = HttpFetcherConfig(**default_config)
 

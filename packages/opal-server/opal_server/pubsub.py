@@ -18,7 +18,7 @@ from opal_common.authentication.verifier import Unauthorized
 from opal_common.confi.confi import load_conf_if_none
 from opal_common.config import opal_common_config
 from opal_common.logger import logger
-from opal_server.config import opal_server_config
+from opalserver.config import opalserver_config
 
 
 class PubSub:
@@ -32,7 +32,7 @@ class PubSub:
             None means no broadcasting.
         """
         broadcaster_uri = load_conf_if_none(
-            broadcaster_uri, opal_server_config.BROADCAST_URI
+            broadcaster_uri, opalserver_config.BROADCAST_URI
         )
         self.router = APIRouter()
         # Pub/Sub Internals
@@ -45,7 +45,7 @@ class PubSub:
             self.broadcaster = EventBroadcaster(
                 broadcaster_uri,
                 notifier=self.notifier,
-                channel=opal_server_config.BROADCAST_CHANNEL_NAME,
+                channel=opalserver_config.BROADCAST_CHANNEL_NAME,
             )
         else:
             logger.info("Pub/Sub broadcaster is off")
@@ -56,7 +56,7 @@ class PubSub:
             notifier=self.notifier,
             rpc_channel_get_remote_id=opal_common_config.STATISTICS_ENABLED,
             ignore_broadcaster_disconnected=(
-                not opal_server_config.BROADCAST_CONN_LOSS_BUGFIX_EXPERIMENT_ENABLED
+                not opalserver_config.BROADCAST_CONN_LOSS_BUGFIX_EXPERIMENT_ENABLED
             ),
         )
         authenticator = WebsocketJWTAuthenticator(signer)

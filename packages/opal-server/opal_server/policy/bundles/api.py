@@ -11,7 +11,7 @@ from opal_common.git.commit_viewer import CommitViewer
 from opal_common.git.repo_cloner import RepoClonePathFinder
 from opal_common.logger import logger
 from opal_common.schemas.policy import PolicyBundle
-from opal_server.config import opal_server_config
+from opalserver.config import opalserver_config
 from starlette.responses import RedirectResponse
 
 router = APIRouter()
@@ -23,13 +23,13 @@ async def get_repo(
     use_fixed_path: bool = None,
 ) -> Repo:
     base_clone_path = load_conf_if_none(
-        base_clone_path, opal_server_config.POLICY_REPO_CLONE_PATH
+        base_clone_path, opalserver_config.POLICY_REPO_CLONE_PATH
     )
     clone_subdirectory_prefix = load_conf_if_none(
-        clone_subdirectory_prefix, opal_server_config.POLICY_REPO_CLONE_FOLDER_PREFIX
+        clone_subdirectory_prefix, opalserver_config.POLICY_REPO_CLONE_FOLDER_PREFIX
     )
     use_fixed_path = load_conf_if_none(
-        use_fixed_path, opal_server_config.POLICY_REPO_REUSE_CLONE_PATH
+        use_fixed_path, opalserver_config.POLICY_REPO_REUSE_CLONE_PATH
     )
     clone_path_finder = RepoClonePathFinder(
         base_clone_path=base_clone_path,
@@ -103,8 +103,8 @@ async def get_policy(
     maker = BundleMaker(
         repo,
         in_directories=set(input_paths),
-        extensions=opal_server_config.OPA_FILE_EXTENSIONS,
-        root_manifest_path=opal_server_config.POLICY_REPO_MANIFEST_PATH,
+        extensions=opalserver_config.OPA_FILE_EXTENSIONS,
+        root_manifest_path=opalserver_config.POLICY_REPO_MANIFEST_PATH,
     )
     # check if commit exist in the repo
     revision = None

@@ -7,7 +7,7 @@ from opal_common.topics.publisher import (
     TopicPublisher,
 )
 from opal_common.utils import get_authorization_header
-from opal_server.config import opal_server_config
+from opalserver.config import opalserver_config
 
 
 def setup_publisher_task(
@@ -16,11 +16,11 @@ def setup_publisher_task(
 ) -> TopicPublisher:
     server_uri = load_conf_if_none(
         server_uri,
-        opal_server_config.OPAL_WS_LOCAL_URL,
+        opalserver_config.OPAL_WS_LOCAL_URL,
     )
     server_token = load_conf_if_none(
         server_token,
-        opal_server_config.OPAL_WS_TOKEN,
+        opalserver_config.OPAL_WS_TOKEN,
     )
     return ClientSideTopicPublisher(
         client=PubSubClient(extra_headers=[get_authorization_header(server_token)]),

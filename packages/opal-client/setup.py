@@ -55,7 +55,7 @@ setup(
     long_description=get_long_description(),
     url="https://github.com/permitio/opal",
     license=about.__license__,
-    packages=find_packages(include=("opal_client*",)),
+    packages=find_packages(include=("opalclient*",)),
     package_data={
         "": ["opa/healthcheck/opal.rego"],
     },
@@ -74,6 +74,6 @@ setup(
     install_requires=client_install_requires + about.get_install_requires(project_root),
     entry_points="""
     [console_scripts]
-        opal-client=opal_client.cli:cli
+        opal-client=opalclient.cli:cli
     """,
 )

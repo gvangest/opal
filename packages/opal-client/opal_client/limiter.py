@@ -1,7 +1,7 @@
 import aiohttp
 from fastapi import HTTPException, status
-from opal_client.config import opal_client_config
-from opal_client.logger import logger
+from opalclient.config import opalclient_config
+from opalclient.logger import logger
 from opal_common.security.sslcontext import get_custom_ssl_context
 from opal_common.utils import get_authorization_header, tuple_to_dict
 from tenacity import retry, stop, wait_random_exponential
@@ -13,13 +13,13 @@ class StartupLoadLimiter:
     def __init__(self, backend_url=None, token=None):
         """
         Args:
-            backend_url (str): Defaults to opal_client_config.SERVER_URL.
-            token ([type], optional): [description]. Defaults to opal_client_config.CLIENT_TOKEN.
+            backend_url (str): Defaults to opalclient_config.SERVER_URL.
+            token ([type], optional): [description]. Defaults to opalclient_config.CLIENT_TOKEN.
         """
-        self._backend_url = backend_url or opal_client_config.SERVER_URL
+        self._backend_url = backend_url or opalclient_config.SERVER_URL
         self._loadlimit_endpoint_url = f"{self._backend_url}/loadlimit"
 
-        self._token = token or opal_client_config.CLIENT_TOKEN
+        self._token = token or opalclient_config.CLIENT_TOKEN
         self._auth_headers = tuple_to_dict(get_authorization_header(self._token))
         self._custom_ssl_context = get_custom_ssl_context()
         self._ssl_context_kwargs = (

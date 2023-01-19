@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from opal_client.policy.updater import PolicyUpdater
+from opalclient.policy.updater import PolicyUpdater
 from opal_common.logger import logger
 
 

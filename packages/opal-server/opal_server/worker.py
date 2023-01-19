@@ -14,14 +14,14 @@ from opal_common.schemas.policy import PolicyUpdateMessageNotification
 from opal_common.schemas.policy_source import GitPolicyScopeSource
 from opal_common.schemas.scopes import Scope
 from opal_common.utils import get_authorization_header, tuple_to_dict
-from opal_server.config import opal_server_config
-from opal_server.git_fetcher import GitPolicyFetcher, PolicyFetcherCallbacks
-from opal_server.policy.watcher.callbacks import (
+from opalserver.config import opalserver_config
+from opalserver.git_fetcher import GitPolicyFetcher, PolicyFetcherCallbacks
+from opalserver.policy.watcher.callbacks import (
     create_policy_update,
     create_update_all_directories_in_repo,
 )
-from opal_server.redis import RedisDB
-from opal_server.scopes.scope_repository import ScopeRepository
+from opalserver.redis import RedisDB
+from opalserver.scopes.scope_repository import ScopeRepository
 
 
 def is_rego_source_file(
@@ -98,13 +98,13 @@ class NewCommitsCallbacks(PolicyFetcherCallbacks):
             f"Triggering policy update for scope {self._scope_id}: {notification.dict()}"
         )
 
-        url = f"{opal_server_config.SERVER_URL}/scopes/{self._scope_id}/policy/update"
+        url = f"{opalserver_config.SERVER_URL}/scopes/{self._scope_id}/policy/update"
         try:
             async with self._http.post(
                 url,
                 json=notification.dict(),
                 headers=tuple_to_dict(
-                    get_authorization_header(opal_server_config.WORKER_TOKEN)
+                    get_authorization_header(opalserver_config.WORKER_TOKEN)
                 ),
             ) as response:
                 if response.status == status.HTTP_204_NO_CONTENT:
@@ -211,11 +211,11 @@ class Worker:
 
 
 def create_worker() -> Worker:
-    opal_base_dir = Path(opal_server_config.BASE_DIR)
+    opal_base_dir = Path(opalserver_config.BASE_DIR)
 
     worker = Worker(
         base_dir=opal_base_dir,
-        scopes=ScopeRepository(RedisDB(opal_server_config.REDIS_URL)),
+        scopes=ScopeRepository(RedisDB(opalserver_config.REDIS_URL)),
     )
 
     return worker
@@ -232,9 +232,9 @@ def with_worker(f):
 configure_logs()
 app = Celery(
     "opal-worker",
-    broker=opal_server_config.REDIS_URL,
+    broker=opalserver_config.REDIS_URL,
     # if none, no results backend is used
-    backend=opal_server_config.CELERY_BACKEND,
+    backend=opalserver_config.CELERY_BACKEND,
 )
 app.conf.task_default_queue = "opal-worker"
 app.conf.task_serializer = "json"
@@ -242,7 +242,7 @@ app.conf.task_serializer = "json"
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    polling_interval = opal_server_config.POLICY_REFRESH_INTERVAL
+    polling_interval = opalserver_config.POLICY_REFRESH_INTERVAL
     if polling_interval == 0:
         logger.info("OPAL scopes: polling task is off.")
     else:

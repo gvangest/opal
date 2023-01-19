@@ -2,8 +2,8 @@ from typing import List, Optional
 
 import aiohttp
 from fastapi import HTTPException, status
-from opal_client.config import opal_client_config
-from opal_client.logger import logger
+from opalclient.config import opalclient_config
+from opalclient.logger import logger
 from opal_common.schemas.policy import PolicyBundle
 from opal_common.security.sslcontext import get_custom_ssl_context
 from opal_common.utils import (
@@ -28,27 +28,26 @@ def force_valid_bundle(bundle) -> PolicyBundle:
 class PolicyFetcher:
     """fetches policy from backend."""
 
-    # Use as default config the configuration provider by opal_client_config.POLICY_UPDATER_CONN_RETRY
-    # Add reraise as true (an option not available for control from the higher-level config)
-    DEFAULT_RETRY_CONFIG = (
-        opal_client_config.POLICY_UPDATER_CONN_RETRY.toTenacityConfig()
-    )
-    DEFAULT_RETRY_CONFIG["reraise"] = True
+    DEFAULT_RETRY_CONFIG = {
+        "wait": wait.wait_random_exponential(max=10),
+        "stop": stop.stop_after_attempt(5),
+        "reraise": True,
+    }
 
     def __init__(self, backend_url=None, token=None, retry_config=None):
         """
         Args:
-            backend_url (str): Defaults to opal_client_config.SERVER_URL.
-            token ([type], optional): [description]. Defaults to opal_client_config.CLIENT_TOKEN.
+            backend_url (str): Defaults to opalclient_config.SERVER_URL.
+            token ([type], optional): [description]. Defaults to opalclient_config.CLIENT_TOKEN.
         """
-        self._token = token or opal_client_config.CLIENT_TOKEN
-        self._backend_url = backend_url or opal_client_config.SERVER_URL
+        self._token = token or opalclient_config.CLIENT_TOKEN
+        self._backend_url = backend_url or opalclient_config.SERVER_URL
         self._auth_headers = tuple_to_dict(get_authorization_header(self._token))
         self._retry_config = (
             retry_config if retry_config is not None else self.DEFAULT_RETRY_CONFIG
         )
 
-        scope_id = opal_client_config.SCOPE_ID
+        scope_id = opalclient_config.SCOPE_ID
 
         if scope_id != "default":
             self._policy_endpoint_url = f"{self._backend_url}/scopes/{scope_id}/policy"
@@ -75,8 +74,7 @@ class PolicyFetcher:
             return await attempter(directories=directories, base_hash=base_hash)
         except Exception as err:
             logger.warning(
-                "Failed all attempts to fetch bundle, got error: {err}",
-                err=repr(err),
+                "Failed all attempts to fetch bundle, got error: {err}", err=repr(err)
             )
             raise
 
@@ -92,23 +90,18 @@ class PolicyFetcher:
             params["base_hash"] = base_hash
         async with aiohttp.ClientSession() as session:
             logger.info(
-                "Fetching policy bundle from {url}",
-                url=self._policy_endpoint_url,
+                "Fetching policy bundle from {url}", url=self._policy_endpoint_url
             )
             try:
                 async with session.get(
                     self._policy_endpoint_url,
-                    headers={
-                        "content-type": "text/plain",
-                        **self._auth_headers,
-                    },
+                    headers={"content-type": "text/plain", **self._auth_headers},
                     params=params,
                     **self._ssl_context_kwargs,
                 ) as response:
                     if response.status == status.HTTP_404_NOT_FOUND:
                         logger.warning(
-                            "requested paths not found: {paths}",
-                            paths=directories,
+                            "requested paths not found: {paths}", paths=directories
                         )
                         raise HTTPException(
                             status_code=status.HTTP_404_NOT_FOUND,

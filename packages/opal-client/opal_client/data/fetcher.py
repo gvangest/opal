@@ -1,8 +1,8 @@
 import asyncio
 from typing import Any, Dict, List, Optional, Tuple
 
-from opal_client.config import opal_client_config
-from opal_client.policy_store.base_policy_store_client import JsonableValue
+from opalclient.config import opalclient_config
+from opalclient.policy_store.base_policy_store_client import JsonableValue
 from opal_common.config import opal_common_config
 from opal_common.fetcher import FetchingEngine
 from opal_common.fetcher.events import FetcherConfig
@@ -22,8 +22,8 @@ class DataFetcher:
             token (str, optional): default auth token. Defaults to CLIENT_TOKEN.
         """
         # defaults
-        default_data_url: str = default_data_url or opal_client_config.DEFAULT_DATA_URL
-        token: str = token or opal_client_config.CLIENT_TOKEN
+        default_data_url: str = default_data_url or opalclient_config.DEFAULT_DATA_URL
+        token: str = token or opalclient_config.CLIENT_TOKEN
         # The underlying fetching engine
         self._engine = FetchingEngine(
             worker_count=opal_common_config.FETCHING_WORKER_COUNT,

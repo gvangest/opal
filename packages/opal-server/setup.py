@@ -61,7 +61,7 @@ setup(
     long_description=get_long_description(),
     url="https://github.com/permitio/opal",
     license=about.__license__,
-    packages=find_packages(include=("opal_server*",)),
+    packages=find_packages(include=("opalserver*",)),
     classifiers=[
         "Operating System :: OS Independent",
         "License :: OSI Approved :: Apache Software License",
@@ -76,6 +76,6 @@ setup(
     python_requires=">=3.7",
     install_requires=server_install_requires + about.get_install_requires(project_root),
     entry_points={
-        "console_scripts": ["opal-server = opal_server.cli:cli"],
+        "console_scripts": ["opal-server = opalserver.cli:cli"],
     },
 )

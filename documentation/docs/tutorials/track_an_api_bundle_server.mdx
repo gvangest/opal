@@ -61,7 +61,7 @@ As mentioned before, the OPA REST API is running on port `:8181` - you can issue
 
 Let's explore the current state and send some authorization queries to the agent.
 
-The default policy in the [example repo](https://github.com/permitio/opal-example-policy-repo) is a simple [RBAC](https://en.wikipedia.org/wiki/Role-based_access_control) policy, we can issue this request to get the user's role assignment and metadata:
+The default policy in the [example repo](https://github.com/gvangest/opal-example-policy-repo) is a simple [RBAC](https://en.wikipedia.org/wiki/Role-based_access_control) policy, we can issue this request to get the user's role assignment and metadata:
 
 ```
 curl --request GET 'http://localhost:8181/v1/data/users' --header 'Content-Type: application/json' | python -m json.tool
@@ -116,7 +116,7 @@ mv bundle.tar.gz{,.bak1}; mv bundle.tar.gz{.bak,}; mv bundle.tar.gz.bak{1,} # th
 
 ### Step 4: Publish a data update via the OPAL Server
 
-The default policy in the [example repo](https://github.com/permitio/opal-example-policy-repo) is a simple RBAC policy with a twist.
+The default policy in the [example repo](https://github.com/gvangest/opal-example-policy-repo) is a simple RBAC policy with a twist.
 
 A user is granted access if:
 
@@ -133,7 +133,7 @@ curl -w '\n' --request POST 'http://localhost:8181/v1/data/app/rbac/allow' \
 --data-raw '{"input": {"user": "bob","action": "read","object": "id123","type": "finance"}}'
 ```
 
-Bob is granted access because the initial `data.json` location is `US` ([link](https://github.com/permitio/opal-example-policy-repo/blob/master/data.json#L18)):
+Bob is granted access because the initial `data.json` location is `US` ([link](https://github.com/gvangest/opal-example-policy-repo/blob/master/data.json#L18)):
 
 ```
 {"result":true}
